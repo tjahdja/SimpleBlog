@@ -5,8 +5,8 @@ import (
 	"errors"
 	"log/slog"
 
-	"SimpleBlog/internal/entity"
-	"SimpleBlog/internal/repository"
+	"github.com/tjahdja/SimpleBlog/internal/entity"
+	"github.com/tjahdja/SimpleBlog/internal/repository"
 )
 
 var (

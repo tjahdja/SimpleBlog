@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"SimpleBlog/internal/service"
+	"github.com/tjahdja/SimpleBlog/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -26,6 +26,16 @@ type LoginRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
+// Register godoc
+// @Summary      Register a new user account
+// @Description  Create a brand new credentials profile for the blog infrastructure
+// @Tags         Authentication
+// @Accept       json
+// @Produce      json
+// @Param        request  body      RegisterRequest  true  "User Registration Payload"
+// @Success      201      {object}  map[string]interface{} "User successfully registered"
+// @Failure      400      {object}  map[string]string      "Invalid json input payload or mapping error"
+// @Router       /register [post]
 func (h *UserHandler) Register(c *gin.Context) {
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -48,6 +58,16 @@ func (h *UserHandler) Register(c *gin.Context) {
 	})
 }
 
+// Login godoc
+// @Summary      Authenticate user and return JWT
+// @Description  Verify credentials and return a bearer token for protected endpoints
+// @Tags         Authentication
+// @Accept       json
+// @Produce      json
+// @Param        request  body      LoginRequest  true  "User Credentials"
+// @Success      200      {object}  map[string]string         "Returns access token"
+// @Failure      401      {object}  map[string]string         "Invalid credentials"
+// @Router       /login [post]
 func (h *UserHandler) Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

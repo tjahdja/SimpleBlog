@@ -5,15 +5,31 @@ import (
 	"net/http"
 	"os"
 
-	"SimpleBlog/internal/handler"
-	"SimpleBlog/internal/middleware"
-	"SimpleBlog/internal/repository"
-	"SimpleBlog/internal/service"
+	"github.com/tjahdja/SimpleBlog/internal/handler"
+	"github.com/tjahdja/SimpleBlog/internal/middleware"
+	"github.com/tjahdja/SimpleBlog/internal/repository"
+	"github.com/tjahdja/SimpleBlog/internal/service"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	_ "github.com/tjahdja/SimpleBlog/docs"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+// @title           SimpleBlog REST API
+// @version         1.0
+// @description     A production-ready Clean Architecture blogging backend built with Go and Gin.
+// @host            localhost:8080
+// @BasePath        /
+
+// @securityDefinitions.apiKey BearerAuth
+// @in                         header
+// @name                       Authorization
+// @description                Type 'Bearer ' followed by your JWT token payload.
 
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
@@ -54,6 +70,7 @@ func main() {
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "healthy"})
 	})
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	r.POST("/register", userHandler.Register)
 	r.POST("/login", userHandler.Login)

@@ -4,14 +4,15 @@ import (
 	"context"
 	"log/slog"
 
-	"SimpleBlog/internal/entity"
-	"SimpleBlog/internal/repository"
+	"github.com/tjahdja/SimpleBlog/internal/entity"
+	"github.com/tjahdja/SimpleBlog/internal/repository"
 )
 
 type CommentService interface {
 	CreateComment(ctx context.Context, content string, userID uint, postID uint) (*entity.Comment, error)
 	GetCommentsByPostID(ctx context.Context, postID uint) ([]*entity.Comment, error)
 	DeleteComment(ctx context.Context, id uint, userID uint) error
+	GetCommentByID(ctx context.Context, id uint) (*entity.Comment, error)
 }
 
 type GORMCommentService struct {
@@ -64,4 +65,13 @@ func (s *GORMCommentService) DeleteComment(ctx context.Context, id uint, userID 
 		return err
 	}
 	return nil
+}
+
+func (s *GORMCommentService) GetCommentByID(ctx context.Context, id uint) (*entity.Comment, error) {
+	comment, err := s.repo.GetCommentByID(ctx, id)
+	if err != nil {
+		slog.Warn("Comment not found by ID", "id", id, "err", err.Error())
+		return nil, ErrNotFound
+	}
+	return comment, nil
 }

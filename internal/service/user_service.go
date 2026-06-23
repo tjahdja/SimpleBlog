@@ -8,8 +8,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 
-	"SimpleBlog/internal/entity"
-	"SimpleBlog/internal/repository"
+	"github.com/tjahdja/SimpleBlog/internal/entity"
+	"github.com/tjahdja/SimpleBlog/internal/repository"
 )
 
 type UserService interface {

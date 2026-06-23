@@ -1,0 +1,409 @@
+basePath: /
+definitions:
+  github_com_tjahdja_SimpleBlog_internal_entity.Comment:
+    properties:
+      content:
+        maxLength: 1000
+        minLength: 3
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      post_id:
+        type: integer
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    required:
+    - content
+    - post_id
+    - user_id
+    type: object
+  github_com_tjahdja_SimpleBlog_internal_entity.Post:
+    properties:
+      author_id:
+        type: integer
+      content:
+        minLength: 10
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      title:
+        maxLength: 255
+        minLength: 5
+        type: string
+      updated_at:
+        type: string
+    required:
+    - author_id
+    - content
+    - title
+    type: object
+  internal_handler.CommentCreateRequest:
+    properties:
+      content:
+        maxLength: 500
+        minLength: 1
+        type: string
+    required:
+    - content
+    type: object
+  internal_handler.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  internal_handler.PostCreateRequest:
+    properties:
+      content:
+        type: string
+      title:
+        maxLength: 100
+        minLength: 3
+        type: string
+    required:
+    - content
+    - title
+    type: object
+  internal_handler.PostUpdateRequest:
+    properties:
+      content:
+        type: string
+      title:
+        maxLength: 100
+        minLength: 3
+        type: string
+    required:
+    - content
+    - title
+    type: object
+  internal_handler.RegisterRequest:
+    properties:
+      password:
+        minLength: 6
+        type: string
+      username:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - password
+    - username
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: A production-ready Clean Architecture blogging backend built with Go
+    and Gin.
+  title: SimpleBlog REST API
+  version: "1.0"
+paths:
+  /comments/{id}:
+    delete:
+      description: Remove a comment statement by its specific unique comment ID
+      parameters:
+      - description: Comment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comment removed successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a comment
+      tags:
+      - Comments
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Verify credentials and return a bearer token for protected endpoints
+      parameters:
+      - description: User Credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns access token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Invalid credentials
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Authenticate user and return JWT
+      tags:
+      - Authentication
+  /posts:
+    get:
+      description: Retrieve a timeline list of all published blog entries
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of posts
+          schema:
+            items:
+              $ref: '#/definitions/github_com_tjahdja_SimpleBlog_internal_entity.Post'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all blog posts
+      tags:
+      - Posts
+    post:
+      consumes:
+      - application/json
+      description: Publish a brand new story post to the platform feed
+      parameters:
+      - description: Post Content Details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.PostCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Post created successfully
+          schema:
+            $ref: '#/definitions/github_com_tjahdja_SimpleBlog_internal_entity.Post'
+        "401":
+          description: Unauthorized token context error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new blog entry
+      tags:
+      - Posts
+  /posts/{id}:
+    delete:
+      description: Remove a blog entry completely from the database by ID
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Post deleted successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Post not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a blog post
+      tags:
+      - Posts
+    get:
+      description: Retrieve full details of a specific blog post using its ID
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Post details
+          schema:
+            $ref: '#/definitions/github_com_tjahdja_SimpleBlog_internal_entity.Post'
+        "404":
+          description: Post not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a single blog post
+      tags:
+      - Posts
+    put:
+      consumes:
+      - application/json
+      description: Modify the title or content of a blog entry by ID
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated Content
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.PostUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated post details
+          schema:
+            $ref: '#/definitions/github_com_tjahdja_SimpleBlog_internal_entity.Post'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Post not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update an existing post
+      tags:
+      - Posts
+  /posts/{id}/comments:
+    get:
+      description: Retrieve all user feedback comments associated with a specific
+        post ID
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of comments
+          schema:
+            items:
+              $ref: '#/definitions/github_com_tjahdja_SimpleBlog_internal_entity.Comment'
+            type: array
+      summary: Get comments for a post
+      tags:
+      - Comments
+    post:
+      consumes:
+      - application/json
+      description: Publish a new textual reply under an existing blog entry
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Comment Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.CommentCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Comment added successfully
+          schema:
+            $ref: '#/definitions/github_com_tjahdja_SimpleBlog_internal_entity.Comment'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Add a comment to a post
+      tags:
+      - Comments
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Create a brand new credentials profile for the blog infrastructure
+      parameters:
+      - description: User Registration Payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User successfully registered
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid json input payload or mapping error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user account
+      tags:
+      - Authentication
+securityDefinitions:
+  BearerAuth:
+    description: Type 'Bearer ' followed by your JWT token payload.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

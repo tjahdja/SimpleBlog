@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log/slog"
 
-	"SimpleBlog/internal/entity"
+	"github.com/tjahdja/SimpleBlog/internal/entity"
 
 	"gorm.io/gorm"
 )
