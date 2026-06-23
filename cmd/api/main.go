@@ -1,12 +1,10 @@
 package main
 
 import (
-	"log"
 	"log/slog"
 	"net/http"
 	"os"
 
-	"SimpleBlog/internal/entity"
 	"SimpleBlog/internal/handler"
 	"SimpleBlog/internal/middleware"
 	"SimpleBlog/internal/repository"
@@ -18,10 +16,10 @@ import (
 )
 
 func main() {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+
 	dsn := os.Getenv("DATABASE_URL")
-	if dsn == "" {
-		dsn = "host=localhost user=postgres password=root dbname=simple_blog port=5433 sslmode=disable"
-	}
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
@@ -35,12 +33,8 @@ func main() {
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
-	}
-
-	err = db.AutoMigrate(&entity.User{}, &entity.Post{}, &entity.Comment{})
-	if err != nil {
-		log.Fatalf("Failed to run schema migrations: %v", err)
+		slog.Error("Failed to connect to database", "error", err)
+		os.Exit(1)
 	}
 
 	userRepo := repository.NewGORMUserRepository(db)
@@ -79,13 +73,9 @@ func main() {
 		protected.DELETE("/comments/:id", commentHandler.DeleteComment)
 	}
 
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	slog.SetDefault(logger)
-
-	slog.Info("Starting application server", "port", ":8080")
-
-	// Start the server
+	slog.Info("Starting application server", "port", port)
 	if err := r.Run(":" + port); err != nil {
-		slog.Error("failed to start server", "err", err)
+		slog.Error("Failed to start server", "error", err)
+		os.Exit(1)
 	}
 }
